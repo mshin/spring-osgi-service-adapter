@@ -13,6 +13,9 @@
 
 	<packaging>bundle</packaging>
 
+	<url>https://github.com/mshin/spring-osgi-service-adapter</url>
+	<inceptionYear>2016</inceptionYear>
+
 	<properties>
 		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
 		<slf4j.version>1.7.7</slf4j.version>
