@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.github.mshin</groupId>
+	<artifactId>spring-osgi-service-adapter</artifactId>
+	<version>1.0</version>
+
+	<name>${project.artifactId}</name>
+	<description>Adapter library for using OSGi services with the Spring framework.</description>
+
+	<packaging>bundle</packaging>
+
+	<properties>
+		<maven.bundle.plugin.version>2.5.3</maven.bundle.plugin.version>
+		<slf4j.version>1.7.7</slf4j.version>
+		<log4j.version>1.2.17</log4j.version>
+		<junit.version>4.11</junit.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<felix.framework.version>4.4.1</felix.framework.version>
+		<geronimo-annotation.version>1.1.1</geronimo-annotation.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>${felix.framework.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-annotation_1.0_spec</artifactId>
+			<version>${geronimo-annotation.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<version>${maven.bundle.plugin.version}</version>
+				<configuration>
+					<manifestLocation>target/META-INF</manifestLocation>
+					<source>1.8</source>
+					<target>1.8</target>
+					<instructions>
+						<Import-Package>
+							*
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>
