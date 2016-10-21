@@ -42,34 +42,31 @@ public class CachingOsgiServiceGetter {
 	 */
 	@PostConstruct
 	public void init() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("initializing {}...", this.getClass().getName());
-			LOGGER.debug("Class used to find bundle: {}", String.valueOf(this.bundleClass));
-		}
+		LOGGER.info("initializing {}...", this.getClass().getName());
 
 		Bundle bundle = null;
 
 		if (null == this.bundleClass) {
-			bundle = FrameworkUtil.getBundle(this.getClass());
+
+			LOGGER.info("Class used to find bundle: {}", String.valueOf(CachingOsgiServiceGetter.class));
+
+			bundle = FrameworkUtil.getBundle(CachingOsgiServiceGetter.class);
 		} else {
+
+			LOGGER.info("Class used to find bundle: {}", String.valueOf(this.bundleClass));
+
 			bundle = FrameworkUtil.getBundle(this.bundleClass);
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("bundle: {}", String.valueOf(bundle));
-		}
+		LOGGER.info("bundle: {}", String.valueOf(bundle));
 
 		this.context = bundle.getBundleContext();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("context: {}", String.valueOf(this.context));
-		}
+		LOGGER.info("context: {}", String.valueOf(this.context));
 
 		this.cache = new TypeSafeHeterogeneousContainer();
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Finished initializing {}.", this.getClass().getName());
-		}
+		LOGGER.info("Finished initializing {}.", this.getClass().getName());
 	}
 
 	/**
@@ -78,9 +75,7 @@ public class CachingOsgiServiceGetter {
 	 */
 	@PreDestroy
 	public void destroy() {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("destroying {}...", this.getClass().getName());
-		}
+		LOGGER.info("destroying {}...", this.getClass().getName());
 
 		this.cache.clearInstanceMap();
 
@@ -88,9 +83,7 @@ public class CachingOsgiServiceGetter {
 			context.ungetService(reference);
 		}
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Finished destroying {}.", this.getClass().getName());
-		}
+		LOGGER.info("Finished destroying {}.", this.getClass().getName());
 	}
 
 	/**

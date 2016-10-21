@@ -7,7 +7,8 @@ import java.util.Map;
 
 /**
  * This class is used to define an OSGi service to be registered with the
- * <code>OsgiServiceRegistrator</code>.
+ * <code>OsgiServiceRegistrator</code>. Fields <b>classList</b> and
+ * <b>serviceInstance</b> are required while <b>properties</b> is optional.
  * 
  * @author MunChul Shin
  *
@@ -47,9 +48,12 @@ public class OsgiServiceDefinition {
 
 	public Dictionary<String, String> getProperties() {
 		Dictionary<String, String> output = new Hashtable<String, String>();
-		for (String key : properties.keySet()) {
-			output.put(key, properties.get(key));
+		if (null != properties) {
+			for (String key : properties.keySet()) {
+				output.put(key, properties.get(key));
+			}
 		}
+
 		return output;
 	}
 
