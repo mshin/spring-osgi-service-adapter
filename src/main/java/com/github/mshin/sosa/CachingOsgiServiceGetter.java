@@ -5,7 +5,9 @@ import javax.annotation.PreDestroy;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -17,14 +19,24 @@ import com.github.mshin.sosa.util.TypeSafeHeterogeneousContainer;
 /**
  * Spring Bean that manages access to OSGi services. Use this class if your OSGi
  * environment and services are basically static and caching the service
- * instances is not going to create a problem.
+ * instances is not going to cause a problem.
+ * <p>
+ * The services are cached with the <b>clazz</b> value associated with each
+ * service used as the key. Only one service per <b>clazz</b> key can be cached
+ * at a time. If a filter is declared, the filter will be used to get the
+ * service but the service will be stored under the given clazz value.
+ * <p>
+ * If the OSGi service instance is not castable to <b>clazz</b> it will not be
+ * cached. The <code>ServiceReference</code> associated with that OSGi service
+ * will still be cached and used to retrieve the service for subsequent calls to
+ * getService() <i>(not sure if this would ever happen)</i>.
  * 
  * @author MunChul Shin
  */
 public class CachingOsgiServiceGetter {
 
 	/**
-	 * Default timeout for attempting to find an OSGI service
+	 * Default timeout for attempting to find an OSGI service, in milliseconds.
 	 */
 	private static final int DEFAULT_TIMEOUT = 30000;
 	private static final Logger LOGGER = LoggerFactory.getLogger(CachingOsgiServiceGetter.class);
@@ -87,11 +99,32 @@ public class CachingOsgiServiceGetter {
 	}
 
 	/**
-	 * Returns the first OSGi service registered under clazz. Will throw runtime
-	 * exceptions if none is found after DEFAULT_TIMEOUT
+	 * Equivalent to <code>getService(Class<?> clazz, null)</code>.
 	 * 
+	 * @param clazz
+	 * @return The retrieved OSGi service.
 	 */
 	public <S> S getService(Class<S> clazz) {
+		S service = null;
+		try {
+			service = getService(clazz, null);
+		} catch (InvalidSyntaxException e) {
+			LOGGER.error("This error should never be reached.", e);
+		}
+
+		return service;
+	}
+
+	/**
+	 * Returns the OSGi service registered under <b>clazz</b> as per
+	 * <code>org.osgi.util.tracker.ServiceTracker.getServiceReference()</code>
+	 * documentation. Will throw runtime exceptions if none is found after
+	 * <b>DEFAULT_TIMEOUT</b>. If <b>filterString</b> is specified, will use
+	 * that instead of <b>clazz</b>.
+	 * 
+	 * @throws InvalidSyntaxException
+	 */
+	public <S> S getService(Class<S> clazz, String filterString) throws InvalidSyntaxException {
 		// If we have cached the service, return it
 		if (this.cache.instanceMapContainsKey(clazz)) {
 			return this.cache.getInstance(clazz);
@@ -106,12 +139,19 @@ public class CachingOsgiServiceGetter {
 			return service;
 		}
 		// If we have neither, cache and return the reference and the service
-		return cacheReferenceAndService(clazz);
+		return cacheReferenceAndService(clazz, filterString);
 
 	}
 
-	public <S, T> T cacheReferenceAndService(Class<S> clazz) {
-		ServiceTracker<S, T> track = new ServiceTracker<S, T>(this.context, clazz, null);
+	public <S, T> T cacheReferenceAndService(Class<S> clazz, String filterString) throws InvalidSyntaxException {
+		ServiceTracker<S, T> track = null;
+		if (null == filterString) {
+			track = new ServiceTracker<S, T>(this.context, clazz, null);
+		} else {
+			Filter filter = context.createFilter(filterString);
+			track = new ServiceTracker<S, T>(this.context, filter, null);
+		}
+
 		track.open();
 		try {
 			track.waitForService(findOsgiServiceTimeout);
